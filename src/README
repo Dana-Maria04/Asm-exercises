@@ -1,0 +1,264 @@
+nume: Caruntu Dana-Maria
+grupa: 311CAa
+
+# Tema 3- Suricate in retea
+## *Task 1 - Parantezinator*
+
+  Functia `check_parantheses` are scopul de a verifica corectitudinea 
+parantezelor intr-un sir de caractere.
+
+  `check_parantheses` primeste ca argument un pointer catre un sir de 
+caractere si verifica daca toate tipurile de paranteze ((), {}, []) 
+sunt corect inchise. Functia returneaza 0 daca parantezele sunt corecte
+sau 1 in cazul unei erori de parantezare.
+
+  In cadrul rezolvarii , se foloseste `ebp` pentru a pastra adresa de 
+baza a stack-ului,iar `esi` si `edi` sunt indici pentru gestioanre a 
+parcurgerii sirului de caractere , cat si pentru gestionarea pozitiei
+curente in stiva.
+
+  Stiva incepe de la adresa `ebp - 64` , alegerea valorii `64` fiind
+arbitrara , insa cu scopul ca dimensiunea sa fie suficient de mare.
+
+  Fiecare caracter este verificat daca este o paranteza deschisa sau 
+inchisa. Parantezele deschise sunt impinse (`push`) pe stiva simulata,
+iar cele inchise determina scoaterea (`pop`) elementului corespunzator
+pentru verificare.
+
+  Pentru parantezele inchise, se verifica corespondenta cu ultimul 
+element impins pe stiva. Daca nu corespunde, se sare la eticheta 
+`mismatch`.
+
+        - Daca la sfarsitul sirului, `edi` este 0, inseamna ca toate 
+          parantezele au fost inchise corespunzator si se returneaza 0.
+
+        - Altfel, se returneaza 1, indicand o eroare de parantezare.
+
+  In cadrul rezolvarii , am folosit instructiuni standard precum `push`,
+`pop`,`mov`,  `sub` , `add` ,`cmp` , cat si etichete si salturi 
+conditionate `je` `jz`.
+
+*Bibliografie* (ce m-a ajutat sa inteleg conceptul de parantezinator 
+folosind stiva):
+
+https://www.geeksforgeeks.org/check-for-balanced-parentheses-in-an-expression/
+
+## *Task 2 - Divide et Impera*
+
+  Acest task surprinde implementarea a doi algoritmi de tip 
+`Divide et Impera` algoritmilor de `quick sort` si `binary search`
+ recursiv.
+
+### Subtask 1 - Quick Sort
+  Algoritmul `Quick Sort` sorteaza elementele unui array prin alegerea 
+unui element pivot si partitionarea array-ului in sub-array-uri care 
+contin elemente mai mici sau mai mari decat pivotul.
+
+  Antetul functiei este urmatorul :
+
+      void quick_sort(int32_t *buff, uint32_t start, uint32_t end);
+
+  Am folosit registre precum `eax` ,`ebx`, `ecx` pentru stocarea valorilor
+temporare si pentru calculul adreselor.
+ Astfel , registrul `ecx` stocheaza indexul `j` , `edx` retine valoarea 
+ pivotului si `ebx` stocheaza adresele finale a valorilor temporare.
+
+  In calculul adreselor am folosit instructiunea `lea`.
+
+  Am folosit numarul `4` pentru a itera prin vector deoarece fiecare element
+  al array-ului este de tipul `int32_t`, care ocupa `4 octeti`.
+
+  De asemenea valorile `8` , `12` , `16` sun folosite ca offest pentru a 
+accesa ergumentele functiei `quick_sort` (respectiv  `array` , `startindex`,
+`endindex`).
+
+ Pasii facuti sunt urmatorii:
+ 
+1. **Initializarea si Verificarea Conditiilor**:
+
+    Functia incepe prin a compara indexul de start cu indexul de sfarsit.
+    Daca start este mai mare sau egal cu end, sortarea este completa
+pentru segmentul curent si procesul de sortare ia sfarsit.
+
+2. **Alegerea Pivotului si Initializarea Indexilor**:
+
+    Pivotul este ales ca fiind elementul de la indexul end.
+    Se initializeaza doua indexuri, i si j, la valoarea lui start.
+
+3. **Partitionarea**:
+
+    Daca un element este mai mic sau egal cu pivotul, 
+acesta este interschimbat cu elementul de la indexul i, si trecem la 
+urmatoarea pozitie (i-ul este incrementat).
+    
+    Acest pas partitioneaza array-ul in elemente mai mici 
+sau egale cu pivotul pana la i si elemente mai mari decat pivotul 
+de la i la end.
+
+4. **Schimbarea Pivotului**:
+
+    La sfarsitul iteratiei, pivotul este interschimbat cu 
+elementul de la indexul i(pentru a respecta regula sortarii).
+
+    Astfel elementele inaite de pozitia `i` sunt mai mici decat 
+elementul de pe acea pozitie , iar cele dupa `i` sunt mai mari decat pivotul.
+
+5. **Apeluri Recursive**:
+
+    Functia quick_sort este apelata recursiv pentru segmentele 
+`[start, i-1]` si `[i+1, end]` pentru a sorta segmentele generate de partitie.
+
+### Subtask 2 - Binary Search
+
+  Aceasta functie va returna pozitia elementului needle in cadrul 
+  array-ului `buff`. Cautarea va avea loc intre elementele indexate 
+  start si end (inclusiv). 
+  
+  Daca `needle` nu se gaseste in `buff`, functia va returna -1.
+
+  Antetul este urmatorul :
+
+      int32_t __attribute__((fastcall))
+      binary_search(int32_t *buff, uint32_t needle, uint32_t start, 
+                    uint32_t end);
+
+  Am folosit `esi` pentru a stoca indicele de start, si `edi` pe cel
+de sfarsit, iar pe `ebx` pentru a stoca indicele mijlociu.
+
+  Offeturi precum valorile `20` si `24` au fost folostite in reprezentarea
+locatiei pe stiva pentru argumentul start din cauza conventiei `fastcall` 
+si a faptului ca primele doua argumente sunt in registre.
+
+Pasii sunt urmatorii:
+
+1. **Initializare si Verificare**: 
+
+   Daca `start` este mai mare decat `end`, inseamna ca elementul nu a
+fost gasit si se returneaza `-1`.
+
+2. **Calculul indicelui de mijloc**:
+
+   Se aduna valorile `start` si `end`, apoi se imparte suma la 2 
+pentru a gasi indicele din mijloc.
+   
+   Aceasta operatie este ajustata folosind `shl eax, 2`.
+
+3. **Compararea si Decizia**:
+  
+  Elementul din mijlocul subarray-ului este comparat cu needle.
+  
+  Astfel:
+- Daca sunt egale, se returneaza indicele mijlociu.
+- Daca needle este mai mic, functia cauta recursiv in jumatatea stanga.
+- Daca needle este mai mare, functia cauta recursiv in jumatatea dreapta.
+
+4. **Recursivitate**:
+
+  Se ajusteaza indicii `start` si `end` in functie de rezultatul comparatiei
+si se face apelul recursiv.
+
+ La final se executa curatarea stivei si restaurarea registrelor initiale.
+
+## *Task 3 - Depth first search*
+
+  Acest task surprinde implementarea functiei `DFS`, necesara pentru
+explorarea grafurilor.
+
+  Functia itereaza prin fiecare vecin al nodului curent, verificand 
+daca fiecare a fost vizitat si apeland recursiv `DFS` pentru fiecare 
+vecin nevizitat.
+
+  Structura `neighbours_t` stocheaza informatii despre vecinii unui 
+nod precum nr de vecini (`num_neighs`) si un pointer catre un array 
+ai vecinilor (`neighs`).
+
+  Am folosit ca registre `ebp` ca base pointer , `esp` ca stack pointer,
+ `edi` pentru a stoca nodul curent , cat si`esi` pentru a stoca functia 
+ `expand` .
+
+  Registru `ebx` este salvat (`push ebx`) pe stiva deoarece va fi 
+modificat in timpul executiei functiei si trebuie restabilit la final.
+
+  Astfel ,se verifica daca nodul curent a fost vizitat folosind un array 
+global visited. Indexul nodului (`edi`) este mutat si multiplicat pentru a 
+obtine pozitia corecta in array (fiecare element al array-ului este un 
+`dword` sau `4 octeti`).
+`shl eax, 2` este folosit pentru a multiplica indexul cu 4 .
+  
+  Daca nodul a fost vizitat (cmp dword [ebx], 1), executia sare la eticheta 
+already_visited, altfel, nodul este marcat ca vizitat (`mov dword [ebx], 1`).
+
+  Se apeleaza functia `expand` pentru a obtine vecinii nodului curent. 
+  Rezultatele sunt stocate in structura `neighbours_t` la care `ebx` va pointa.
+
+  Se utilizeaza functia externa  `printf` pentru a afisa ID-ul nodului curent.
+
+  Dupa ce toti vecinii au fost parcursi, registrele si variabilele locale 
+  sunt curatate si stiva este restaurata la starea initiala.
+
+
+## *Bonus - x64 assembly*
+
+  Acest task consta in impleemnatrea functiilor de `map` si `reduce` in 
+x64 assembly.
+
+### **MAP**
+
+  Functia `map` permite aplicarea unei functii specifice asupra fiecarui
+element al unui array, generand un nou array cu rezultate.
+
+  Antetul ei este urmatorul :
+
+        void map(int64_t *destination_array, int64_t *source_array, int64_t
+                 array_size, int64_t(*f)(int64_t));
+
+  Am folosit `rbx` ca index pentru iterare prin vector ,`r8` pentru calculul
+adreselor cat si `rax` pentru salvarea rezultatelor dupa aplicarea functiei.
+
+  De asemenea , ca operatii am folosit pe langa instriunctiune clasice , si 
+`shl` petru a shifta la stanga cu 3 biti si a realiza operate de inmultire 
+cu 8 (2^3).
+  Aceasta este necesara deoarece fiecare element din array-ul de int64_t 
+ocupa 8 bytes, deci pentru a ajunge la urmatorul element trebuie sa sarim 
+8 bytes.
+
+  Pentru a itera prin fiecare element al vectorului , folosesc un loop ce 
+surprinde calculul adresei (Folosim registrul `rbx` ca index, iar registrul 
+`r8` pentru calculul adresei elementului curent multiplicand indexul cu 8. 
+Aceasta asigura accesul corect la elementele vectorului) cat si aplicarea 
+functiei `f`, rezultatul fiind stocat in `destination_array`.
+  La final, restauram registrele modificate in timpul executiei.
+
+### **REDUCE**
+
+  Functia `reduce` este utilizata pentru a reduce un array de elemente la
+o singura valoare, aplicand repetat o functie de acumulare.
+
+  Antetul ei este urmatorul :
+
+        int64_t reduce(int64_t *destination_array, int64_t *source_array, 
+                       int64_t array_size, int64_t accumulator_initial_value,
+                       int64_t(*f)(int64_t, int64_t));
+
+  Am utilizat registii auxiliari precum `r12` , `r13` pentru a stoca date 
+temporare , cat si aprametrii functiei, iar loop-ul si fluxul codului a 
+fost gestionat prin labeluri si instructiuni de control precum `cmp` si `jne`.
+La fel ca in functia `map`, iterez prin vector inmultit elementele cu 8.
+
+  La inceput verific lungimea vectorului(`test rdx, rdx`) pentru a decide daca
+trebuie sa inchei executia.
+
+  Accumulatorul este initializat in `rdi` pentru a fi folosit in apelurile 
+functiei `f`.Functia `f`este apelata cu acumulatorul curent si elementul 
+din array (`call r13`). Rezultatul este stocat inapoi in rdi, pregatit pentru 
+urmatoarea iteratie.
+
+  Indexul rbx este incrementat dupa fiecare iteratie (`inc rbx`) pana cand 
+toate elementele au fost procesate.
+
+  Toate registrele temporare sunt restaurate la valorile lor originale si 
+stiva este adusa la configuratia initiala (`pop` pentru fiecare registru 
+salvat).
+  
+ *Bibliografie:*
+https://stackoverflow.com/questions/20637569/assembly-registers-in-64-bit-architecture
